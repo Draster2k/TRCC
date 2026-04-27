@@ -1,0 +1,72 @@
+# ─── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+
+# ─── Build artifacts (Python + C++) ──────────────────────────────────
+build/
+dist/
+sdist/
+wheels/
+*.so
+*.pyd
+*.dll
+*.dylib
+*.o
+*.obj
+*.a
+*.lib
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# ─── Virtual environments ────────────────────────────────────────────
+.venv/
+venv/
+env/
+.env
+.python-version
+
+# ─── Editors / IDEs ──────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── Project-specific data & generated outputs ───────────────────────
+Data/
+results/
+examples/*.png
+examples/*.svg
+paper/*.pdf
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+
+# ─── Logs / temp ─────────────────────────────────────────────────────
+*.log
+*.tmp
+.tmp/
+
+# Track pinned outputs intentionally with `git add -f <path>` if needed.

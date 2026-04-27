@@ -1,0 +1,19 @@
+include README.md
+include CHANGES.md
+include SESSION_LOG.md
+include LICENSE*
+include pyproject.toml
+include setup.py
+recursive-include trcc *.py
+recursive-include trcc/_native *.cpp *.hpp
+recursive-include trcc/_native/third_party *.hpp LICENSE*
+recursive-include tests *.py
+recursive-include examples *.py
+recursive-include paper *.tex *.md
+graft scripts
+prune TRCC-old
+prune Data
+prune results
+prune .venv
+prune __pycache__
+global-exclude *.pyc *.pyo *.so __pycache__ .DS_Store

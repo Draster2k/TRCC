@@ -1,0 +1,104 @@
+% =============================================================
+%   TRCC v1.1 — Pseudocode (algorithmicx / algpseudocodex style)
+%   Add to the preamble of your paper:
+%       \usepackage{algorithm}
+%       \usepackage{algpseudocodex}      % or algpseudocode
+%       \usepackage{amsmath}
+% =============================================================
+
+% ---------- High-level fit pipeline -------------------------------------
+
+\begin{algorithm}[t]
+\caption{\textsc{TRCC\_Fit} — full clustering pipeline (v1.1)}
+\label{alg:trcc_fit}
+\begin{algorithmic}[1]
+\Require Data $X \in \mathbb{R}^{n\times d}$; thresholds $\rho{=}0.6$, $n_{\min}{=}15$, $K_{\max}{=}50$.
+\Ensure  Cluster labels $\ell \in \{-1, 0, 1, \dots\}^n$, centroids $\{\mu_c\}$.
+\State $k_{\textsc{nn}} \gets \min\bigl(200,\,\max(10,\,\lceil\sqrt{n}/2\rceil)\bigr)$ \Comment{Eq.~\eqref{eq:knn_auto}}
+\State $T \gets \textsc{KdTree.build}(X)$ \Comment{nanoflann L2}
+\State $D, \_ \gets T.\textsc{kNN}(X,\, k_{\textsc{nn}}{+}1)$ \Comment{drop self-distance}
+\State $\sigma \gets \operatorname{med}_i\!\bigl(D_{i,k_{\textsc{nn}}}\bigr)$
+\State $S_i \gets \sum_{j} \exp\!\bigl(-D_{ij}^{2}/(2\sigma^{2})\bigr) \quad \forall i$ \Comment{Eq.~\eqref{eq:cytokine}}
+\State $(\delta,\,\pi) \gets \textsc{DeltaParent\_KdTree}(X,\,S,\,T)$ \Comment{Alg.~\ref{alg:delta_parent}}
+\State $\gamma_i \gets S_i \cdot \delta_i \quad \forall i$
+\State $\hat K \gets \textsc{AutoK}(\gamma)$ \Comment{Eq.~\eqref{eq:auto_k}}
+\State $\mathcal{P} \gets \textsc{TopK}(\gamma,\,\hat K)$ \Comment{indices of top-$\hat K$ peakiness}
+\State $\ell \gets \textsc{Propagate}(S,\,\pi,\,\mathcal{P})$ \Comment{descending-signal sweep}
+\State $\ell \gets \textsc{PathDensityMerge}(X,\,S,\,\ell,\,T,\,\rho)$ \Comment{Alg.~\ref{alg:merge}}
+\State $\ell \gets \textsc{NoiseFilter}(\ell,\,n_{\min})$ \Comment{Eq.~\eqref{eq:noise}}
+\State $\ell,\,\{\mu_c\} \gets \textsc{Compact}(X,\,\ell)$ \Comment{relabel $0..C{-}1$, compute centroids}
+\State \Return $\ell,\,\{\mu_c\}$
+\end{algorithmic}
+\end{algorithm}
+
+
+% ---------- Delta-parent kd-tree search ---------------------------------
+
+\begin{algorithm}[t]
+\caption{\textsc{DeltaParent\_KdTree} — kd-tree-backed nearest higher-signal search}
+\label{alg:delta_parent}
+\begin{algorithmic}[1]
+\Require Points $X \in \mathbb{R}^{n\times d}$; cytokine signals $S \in \mathbb{R}^n$; pre-built kd-tree $T$ (nanoflann).
+\Ensure  Separation $\delta \in \mathbb{R}_{\ge 0}^n$, parent $\pi \in \{-1,\,0..n{-}1\}^n$.
+\State $i^{\star} \gets \arg\max_i S_i$ \Comment{global density maximum}
+\For{each $i \in \{0..n{-}1\}$ \textbf{in parallel}}
+    \If{$i = i^{\star}$} \State \textbf{continue} \EndIf
+    \State $k \gets 16$;\; $\textit{found} \gets \textbf{false}$
+    \While{$\neg\,\textit{found}$ \textbf{and} $k \le n$}
+        \State $(\mathcal{I},\,\mathcal{D}) \gets T.\textsc{kNN}(x_i,\,k)$ \Comment{indices and squared distances}
+        \For{$r = 1$ \textbf{to} $|\mathcal{I}|$}
+            \State $j \gets \mathcal{I}_r$
+            \If{$j = i$} \State \textbf{continue} \EndIf
+            \If{$S_j > S_i$}
+                \State $\delta_i \gets \sqrt{\mathcal{D}_r}$;\; $\pi_i \gets j$
+                \State $\textit{found} \gets \textbf{true}$;\; \textbf{break}
+            \EndIf
+        \EndFor
+        \If{$\neg\,\textit{found}$} \State $k \gets \min(4k,\,n)$ \Comment{geometric expansion}
+        \EndIf
+    \EndWhile
+    \If{$\neg\,\textit{found}$} \State $\delta_i \gets 0$;\; $\pi_i \gets -1$ \EndIf
+\EndFor
+\State $\delta_{i^{\star}} \gets \max_i \delta_i$;\; $\pi_{i^{\star}} \gets -1$
+\State \Return $(\delta,\,\pi)$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent\textbf{Why expanding-radius?}\;
+A naïve $\arg\min_{j: S_j > S_i} d_{ij}$ requires evaluating distances to
+all higher-signal points ($\Theta(n)$ per query, $\Theta(n^2)$ total).
+Algorithm~\ref{alg:delta_parent} exploits the kd-tree to retrieve points
+in distance order at $\mathcal{O}(\log n)$ per neighbor, scanning only
+until the first higher-signal neighbor appears. The geometric expansion
+($k\!\leftarrow\!4k$) bounds the number of kd-tree calls per query to
+$\lceil \log_4(n) \rceil$ and amortizes the cost when most queries
+terminate at small $k$. Across the 37-dataset benchmark the average
+query examined fewer than 64 neighbors.
+
+% ---------- Path-density merge ------------------------------------------
+
+\begin{algorithm}[t]
+\caption{\textsc{PathDensityMerge} — fixed-point fusion under density-ridge constraint}
+\label{alg:merge}
+\begin{algorithmic}[1]
+\Require Points $X$; signals $S$; labels $\ell$; kd-tree $T$; ratio $\rho{=}0.6$; samples $m{=}11$; ceiling $D_{\max}$.
+\Ensure  Updated labels $\ell$.
+\State Sample positions $\mathcal{T} \gets \{\,0.05 + 0.9\,\tfrac{r-1}{m-1}\,\}_{r=1}^{m}$
+\Repeat
+    \State $\{C_c\} \gets$ partition of $\{i : \ell_i \ge 0\}$ by current labels
+    \If{$|\{C_c\}| \le 1$} \textbf{break} \EndIf
+    \State $\mu_c \gets \operatorname{mean}(C_c)$;\; $T_c \gets \max_{x \in C_c} S(x)$ \Comment{peak signal per cluster}
+    \State $\mathcal{E} \gets \emptyset$ \Comment{eligible candidate pairs}
+    \For{$(a,b)$ with $a < b$ and $\lVert \mu_a - \mu_b \rVert < D_{\max}$}
+        \State $\Pi \gets \{(1-t)\mu_a + t\,\mu_b : t \in \mathcal{T}\}$
+        \State $\widetilde S \gets \textsc{CytokineSignalAt}(\Pi,\,T,\,\sigma)$
+        \State $b_{ab} \gets \min \widetilde S$;\; $\beta_{ab} \gets b_{ab}/\min(T_a,\,T_b)$
+        \If{$\beta_{ab} \ge \rho$} $\mathcal{E} \gets \mathcal{E} \cup \{(a,b,\beta_{ab})\}$ \EndIf
+    \EndFor
+    \If{$\mathcal{E} = \emptyset$} \textbf{break} \EndIf
+    \State $(a^{\star}, b^{\star}, \cdot) \gets \arg\max_{(a,b,\beta) \in \mathcal{E}} \beta$ \Comment{strongest ridge first}
+    \State $\ell_i \gets \min(a^{\star}, b^{\star}) \quad \forall\, i \in C_{\,\max(a^{\star},b^{\star})}$
+\Until{partition is stable}
+\State \Return $\ell$
+\end{algorithmic}
+\end{algorithm}

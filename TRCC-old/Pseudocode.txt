@@ -1,0 +1,41 @@
+function TRCC(X, k, max_iter, max_cluster_distance, min_points_per_cluster,
+              ε, σ, α, β, device):
+
+    # Step 0: Setup
+    Move X to device (CPU or GPU).
+    Initialize k clusters with random seeds from X.
+    prev_clusters ← None
+
+    for iteration in range(max_iter):
+
+        # Step 1: Cytokine signals
+        For each point x_i in X:
+            Find neighbors of x_i within radius ε.
+            Compute signal:
+                S_i = Σ exp( − (distance(x_i, neighbor)²) / (2σ²) )
+
+        # Step 2: Assign points
+        Compute centroids of all clusters.
+        For each point x_i in X:
+            For each cluster_j:
+                Score(x_i, cluster_j) =
+                    −β * ||x_i − centroid(cluster_j)|| + α * S_i
+            Assign x_i to cluster with max Score.
+
+        # Step 3: Merge close clusters
+        Compute all centroid distances.
+        For each pair (C_i, C_j):
+            If distance(centroid(C_i), centroid(C_j)) < max_cluster_distance:
+                Merge C_i and C_j.
+
+        # Step 4: Filter clusters
+        Remove any cluster C_j with size(C_j) < min_points_per_cluster.
+
+        # Step 5: Convergence check
+        If cluster set (sizes + centroids) ≈ prev_clusters:
+            Print("Convergence reached.")
+            Break
+
+        prev_clusters ← Copy of current clusters
+
+    return Final clusters C

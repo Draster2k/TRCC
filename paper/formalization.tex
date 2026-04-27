@@ -1,0 +1,183 @@
+% =============================================================
+%   TRCC v1.1 — Mathematical Formalization
+%   For inclusion in §3 (Method) of the technical paper.
+%   Compile-ready blocks for amsmath / algorithmicx / booktabs.
+% =============================================================
+
+% ---------- 3.1 Preliminaries -------------------------------------------
+
+\textbf{Notation.}\;
+Let $X = \{x_1, \dots, x_n\} \subset \mathbb{R}^d$ be the input point cloud,
+$d_{ij} = \lVert x_i - x_j \rVert_2$ the Euclidean distance, and let
+$\mathcal{N}_k(i)$ denote the indices of the $k$ nearest neighbors of $x_i$
+in $X \setminus \{i\}$, ordered by ascending distance:
+$d_{i,(1)} \le \dots \le d_{i,(k)}$.
+
+% ---------- 3.2 Cytokine signal -----------------------------------------
+
+\subsection*{3.2~~Cytokine signal as a kNN Gaussian density estimator}
+
+The \textit{cytokine signal} $S_i$ at point $x_i$ is a kNN-truncated
+Gaussian KDE with adaptive bandwidth:
+\begin{equation}
+\label{eq:cytokine}
+S_i \;=\; \sum_{j \in \mathcal{N}_k(i)} \exp\!\left(-\frac{d_{ij}^{\,2}}{2\sigma^2}\right),
+\qquad
+\sigma \;=\; \operatorname{med}_i\!\bigl(d_{i,(k)}\bigr).
+\end{equation}
+The bandwidth $\sigma$ is the \emph{median} of the $k$-th nearest neighbor
+distances across the dataset, which is scale-equivariant under
+standardization and adapts to the data's intrinsic scale without manual
+tuning. Truncation to $\mathcal{N}_k(i)$ converts the Gaussian KDE into an
+$O(k)$-per-point estimator with kd-tree support, instead of the $O(n)$
+full-kernel sum (Silverman 1986; Rosenblatt 1956). The neighborhood size
+$k$ is set by the \textit{Auto-neighborhood} heuristic
+\begin{equation}
+\label{eq:knn_auto}
+k_{\textsc{nn}}(n) \;=\; \min\!\bigl(200,\; \max\!\bigl(10,\; \lceil \sqrt{n}/2 \rceil\bigr)\bigr),
+\end{equation}
+following the square-root scaling recommended for kNN density estimation
+(Loftsgaarden \& Quesenberry 1965), with floors and caps chosen
+empirically to keep the kernel numerically well-conditioned across
+$10^3 \le n \le 10^6$.
+
+% ---------- 3.3 Density-peak discovery & Auto-K --------------------------
+
+\subsection*{3.3~~Density peaks and Auto-$K$}
+
+Following Rodriguez \& Laio (Science 2014), each point is assigned a
+\emph{separation} $\delta_i$ — the distance to its nearest higher-signal
+neighbor:
+\begin{equation}
+\label{eq:delta}
+\delta_i \;=\; \min_{j:\, S_j > S_i} d_{ij},
+\qquad
+\pi_i \;=\; \arg\!\min_{j:\, S_j > S_i} d_{ij},
+\end{equation}
+where $\pi_i$ is the \emph{density parent} of $i$ (the global signal
+maximum is given $\delta_{i^\star} = \max_i \delta_i$ and $\pi_{i^\star} = -1$).
+The peakiness score $\gamma_i = S_i \cdot \delta_i$ separates true peaks
+(high $S$, high $\delta$) from cluster-interior points and outliers.
+
+The number of clusters is determined non-parametrically. Let
+$\gamma_{(1)} \ge \gamma_{(2)} \ge \cdots \ge \gamma_{(n)}$ be the sorted
+peakiness scores. Define two estimators:
+\begin{align}
+\label{eq:k_ratio}
+\hat k_{\text{ratio}} \;&=\; \arg\max_{1 \le i < K_{\max}} \;\frac{\gamma_{(i)}}{\gamma_{(i+1)}}, \\[4pt]
+\label{eq:k_outlier}
+\hat k_{\text{out}} \;&=\; \bigl|\,\{\,i : \log \gamma_i \;>\; \mu_{\tau} + 2\,\sigma_{\tau}\,\}\,\bigr|,
+\end{align}
+where $\mu_{\tau}, \sigma_{\tau}$ are the mean and standard deviation of
+$\{\log \gamma_{(i)}\}_{i \ge 3}$ (the top two are dropped to debias the
+tail). The Auto-$K$ rule combines them with a max-floor:
+\begin{equation}
+\label{eq:auto_k}
+\hat K \;=\; \max\!\bigl(2,\; \min\!\bigl(K_{\max},\; \max(\hat k_{\text{ratio}},\, \hat k_{\text{out}})\bigr)\bigr).
+\end{equation}
+The maximum is intentional: under-detection cannot be undone (you cannot
+split a missed cluster), whereas over-detection is repaired by the
+path-density merge (\S 3.4). Empirically $\hat k_{\text{ratio}}$ recovers
+the true $K$ on every synthetic case we tested (4-, 8-, and 12-blob
+datasets at $n = 10^3$ to $10^5$); the outlier rule serves as a safety
+floor when $\gamma_i$ is heavy-tailed.
+
+The \emph{peak set} is then
+\begin{equation}
+\label{eq:peak_set}
+\mathcal{P} \;=\; \{\,\sigma(1), \sigma(2), \dots, \sigma(\hat K)\,\},
+\qquad \sigma:\; \text{permutation that sorts $\gamma$ descending}.
+\end{equation}
+Cluster labels propagate down the density gradient: in descending order
+of $S$, every non-peak point inherits its parent's label,
+\[
+\ell_i \;=\; \ell_{\pi_i} \quad \forall i \notin \mathcal{P}, \qquad \ell_{p_c} = c \ \text{for } p_c \in \mathcal{P}.
+\]
+
+% ---------- 3.4 Path-density mutual-reachability merge -------------------
+
+\subsection*{3.4~~Path-density mutual-reachability merge}
+
+Density-peak propagation alone produces a fragmented partition when the
+peakiness estimator over-counts. We formalize the merge condition as a
+binary relation on the cluster lattice. For two clusters
+$C_a, C_b \subseteq X$ with centroids
+$\mu_a = |C_a|^{-1}\!\sum_{x \in C_a} x$ and \emph{peak signals}
+$T_a = \max_{x \in C_a} S(x)$ define the line segment
+\begin{equation}
+\label{eq:line_path}
+\Pi_{ab}(t) \;=\; (1-t)\,\mu_a + t\,\mu_b, \qquad t \in [0, 1],
+\end{equation}
+discretized at $m$ interior points
+$\mathcal{T} = \{0.05, 0.14, \dots, 0.95\}$ (we use $m = 11$). Let
+$\widetilde S(\cdot)$ denote the cytokine signal evaluated at an
+\emph{arbitrary} point in $\mathbb{R}^d$ (computed by querying the same
+kd-tree used for $S_i$, applying \eqref{eq:cytokine} with
+$\mathcal{N}_k(\cdot)$ taken from $X$). The path-density bottleneck and
+relative bottleneck are
+\begin{equation}
+\label{eq:bottleneck}
+b_{ab} \;=\; \min_{t \in \mathcal{T}} \widetilde S\!\left(\Pi_{ab}(t)\right),
+\qquad
+\beta_{ab} \;=\; \frac{b_{ab}}{\min(T_a,\, T_b)}.
+\end{equation}
+Define the merge-eligibility relation
+\begin{equation}
+\label{eq:merge_rel}
+C_a \,\sim\, C_b \;\iff\; \lVert \mu_a - \mu_b \rVert_2 \;<\; D_{\max}\;\;\wedge\;\; \beta_{ab} \;\ge\; \rho,
+\end{equation}
+with default thresholds $D_{\max} = \tfrac{1}{2}\operatorname{diam}(X)$
+and $\rho = 0.6$. Eligibility expresses two physical requirements:
+(i) the two clusters are spatially close, and (ii) a high-density
+``ridge'' of cytokine signal connects them — preventing fusion across
+gaps that have collapsed in density.
+
+The unified partition is the transitive closure of $\sim$. Concretely,
+let $\mathcal{C}^{(0)} = \{C_1, \dots, C_{\hat K}\}$ be the clusters from
+density-peak propagation. Iterate
+\begin{equation}
+\label{eq:merge_iter}
+\mathcal{C}^{(t+1)}
+\;=\; \mathcal{C}^{(t)} \setminus \{C_a, C_b\}\;\cup\;\{C_a \cup C_b\},
+\end{equation}
+where $(a, b)$ is the eligible pair with the largest $\beta_{ab}$
+(strongest ridge first), updating $\mu, T$ after each merge. Termination
+is reached when no eligible pair exists; the resulting partition
+$\mathcal{C}^{\star}$ is the fixed point of \eqref{eq:merge_iter}. Since
+each iteration strictly reduces $|\mathcal{C}|$ and the relation
+$\sim$ is recomputed on the updated partition, the procedure terminates
+in at most $\hat K - 1$ steps.
+
+% ---------- 3.5 Noise filtering ------------------------------------------
+
+\subsection*{3.5~~Noise filtering}
+
+Clusters whose cardinality falls below an explicit minimum,
+$|C_a| < n_{\min}$, are demoted to the noise label $-1$:
+\begin{equation}
+\label{eq:noise}
+\ell_i \;\leftarrow\; -1 \quad\text{whenever}\quad i \in C_a,\; |C_a| < n_{\min}.
+\end{equation}
+The default $n_{\min} = 15$ matches the lower limit of robust kNN density
+estimation \eqref{eq:knn_auto}. Optionally, points below the
+$q$-quantile of $\{S_i\}$ are also demoted, providing a continuous
+analogue of DBSCAN's \texttt{min\_samples} criterion.
+
+% ---------- 3.6 Complexity ----------------------------------------------
+
+\subsection*{3.6~~Complexity}
+
+With a kd-tree (\textsc{nanoflann}) over $X$:
+\begin{itemize}
+\item Cytokine signal \eqref{eq:cytokine}: one batched kNN query,
+      $\mathcal{O}(n\,k\,\log n)$ time, $\mathcal{O}(n\,d)$ memory.
+\item Density-parent search \eqref{eq:delta}: per-point expanding-radius
+      kNN until a higher-signal neighbor is found.\ Empirically,
+      $\mathcal{O}(n\,\bar k\,\log n)$ with $\bar k$ small ($\bar k < 64$
+      across all tested datasets).
+\item Path-density merge: $\mathcal{O}(\hat K^2 \cdot m \cdot k)$, dominated
+      by the all-pairs pathway evaluation; $\hat K \ll n$ in practice.
+\end{itemize}
+Total runtime is therefore $\mathcal{O}(n\,k\,\log n)$, super-linear but
+strictly sub-quadratic, and on a 100,000-point benchmark TRCC v1.1
+completes in $3.45$ seconds with $533$ MB peak resident memory.
