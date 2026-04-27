@@ -44,6 +44,7 @@ dev = ["pytest>=7", "hdbscan>=0.8", "tabulate>=0.8", "optuna>=3.0"]
 Repository = "https://github.com/draster2k/trcc"
 Issues = "https://github.com/draster2k/trcc/issues"
 Archive = "https://doi.org/10.5281/zenodo.19832226"
+Paper = "https://doi.org/10.5281/zenodo.19831715"
 
 [tool.setuptools]
 include-package-data = true

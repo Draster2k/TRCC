@@ -1,6 +1,7 @@
 # TRCC — T-Regulated Cytokine Clustering (v1.1)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19832226.svg)](https://doi.org/10.5281/zenodo.19832226)
+[![Paper](https://img.shields.io/badge/Paper-10.5281%2Fzenodo.19831715-blue)](https://doi.org/10.5281/zenodo.19831715)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0005--9555--1036-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0005-9555-1036)
@@ -268,9 +269,22 @@ If you use TRCC in academic work, please cite the archived release:
 }
 ```
 
+The companion paper preprint is archived separately:
+
+```bibtex
+@misc{adham_trcc_paper_2026,
+  author    = {Adham, Azar},
+  title     = {TRCC: T-Regulated Cytokine Clustering with Path-Density Mutual-Reachability Merging},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19831715},
+  url       = {https://doi.org/10.5281/zenodo.19831715}
+}
+```
+
 GitHub also offers a one-click "Cite this repository" button (powered by
-the [`CITATION.cff`](CITATION.cff) at the repo root) that exports this
-record to BibTeX, RIS, EndNote, and other formats automatically.
+the [`CITATION.cff`](CITATION.cff) at the repo root) that exports both
+records to BibTeX, RIS, EndNote, and other formats automatically.
 
 The algorithm builds on the density-peak idea of Rodriguez & Laio
 (*Science* 2014), the kNN density estimator of Loftsgaarden &

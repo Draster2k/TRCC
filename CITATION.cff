@@ -12,7 +12,10 @@ authors:
 identifiers:
   - type: doi
     value: 10.5281/zenodo.19832226
-    description: "Zenodo archive of TRCC v1.1.0"
+    description: "Zenodo software archive of TRCC v1.1.0"
+  - type: doi
+    value: 10.5281/zenodo.19831715
+    description: "Companion preprint: TRCC — Path-Density Mutual-Reachability Merging"
 repository-code: "https://github.com/draster2k/trcc"
 url: "https://github.com/draster2k/trcc"
 abstract: >-
