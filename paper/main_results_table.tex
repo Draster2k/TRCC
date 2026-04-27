@@ -1,0 +1,45 @@
+% Auto-generated (paper/_build_journal_artifacts.py)
+\begin{table*}[!t]
+\centering
+\caption{Adjusted Rand Index per dataset across the 37-dataset evaluation suite. \textbf{TRCC} denotes TRCC v1.1 with the path-density merge enabled; \textbf{TRCC$^{-}$} denotes the same algorithm with the merge disabled (ablation, see Sec.~V-D). Best per row in \textbf{bold}; em-dash denotes no ground truth available for that dataset.}
+\label{tab:full_results}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+Dataset & TRCC & TRCC$^{-}$ & KMeans & DBSCAN & HDBSCAN \\
+\midrule
+aniso & \textbf{0.998} & 0.741 & 0.610 & 0.975 & 0.932 \\
+basic1 & 0.875 & 0.875 & 0.651 & \textbf{1.000} & 0.990 \\
+basic2 & 0.313 & 0.313 & 0.366 & 0.444 & \textbf{0.856} \\
+basic3 & \textbf{1.000} & 0.685 & 0.486 & \textbf{0.999} & \textbf{1.000} \\
+basic5 & 0.996 & 0.886 & \textbf{0.999} & 0.993 & 0.996 \\
+blob & 0.442 & 0.759 & \textbf{0.877} & 0.000 & 0.270 \\
+blobs4 & \textbf{0.948} & \textbf{0.948} & 0.941 & 0.321 & 0.807 \\
+blobs8 & \textbf{0.997} & \textbf{0.997} & 0.995 & 0.764 & 0.976 \\
+boxes & \textbf{1.000} & \textbf{1.000} & \textbf{0.999} & 0.000 & 0.999 \\
+circles & 0.008 & 0.008 & -0.000 & 0.999 & \textbf{1.000} \\
+dart & 0.331 & 0.257 & 0.003 & \textbf{1.000} & \textbf{1.000} \\
+dart2 & -0.011 & -0.011 & 0.006 & 0.000 & \textbf{0.981} \\
+diamonds (cleaned) & -0.000 & -0.000 & 0.027 & -0.001 & \textbf{0.032} \\
+face & \textbf{0.412} & \textbf{0.412} & 0.315 & 0.255 & 0.263 \\
+hyperplane & 0.067 & 0.300 & 0.257 & -0.007 & \textbf{0.357} \\
+isolation & 0.441 & 0.388 & 0.466 & \textbf{1.000} & 0.990 \\
+lines & 0.761 & 0.779 & 0.325 & 0.761 & \textbf{0.921} \\
+lines2 & \textbf{0.999} & 0.765 & 0.440 & -0.000 & 0.981 \\
+moons & 0.783 & 0.783 & 0.499 & 0.999 & \textbf{1.000} \\
+moons\_noisy & 0.550 & 0.458 & 0.492 & \textbf{0.993} & 0.966 \\
+network & \textbf{0.992} & \textbf{0.992} & 0.989 & 0.988 & 0.990 \\
+outliers & 0.977 & 0.579 & 0.643 & 0.907 & \textbf{0.997} \\
+sparse & \textbf{1.000} & \textbf{1.000} & \textbf{1.000} & 0.485 & 0.996 \\
+spiral2 & 0.410 & 0.410 & 0.829 & 0.000 & \textbf{0.957} \\
+spirals & 0.418 & 0.418 & 0.759 & \textbf{1.000} & \textbf{0.999} \\
+supernova & \textbf{0.988} & 0.928 & 0.962 & 0.000 & 0.711 \\
+triangle & \textbf{0.971} & 0.727 & 0.257 & 0.601 & 0.726 \\
+un & 0.160 & 0.160 & 0.447 & \textbf{1.000} & \textbf{1.000} \\
+un2 & 0.420 & 0.420 & 0.696 & 0.000 & \textbf{0.927} \\
+varied & \textbf{0.934} & 0.778 & 0.809 & 0.877 & 0.844 \\
+\midrule
+\textbf{Mean ARI} & 0.639 & 0.592 & 0.572 & 0.578 & \textbf{0.849} \\
+\bottomrule
+\end{tabular}
+\end{table*}

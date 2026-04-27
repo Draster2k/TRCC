@@ -1,0 +1,19 @@
+% Auto-generated (paper/_build_journal_artifacts.py)
+\begin{table}[!t]
+\centering
+\caption{Ablation of the path-density merge across 30 ground-truth datasets. \emph{merge ON} is TRCC v1.1; \emph{merge OFF} disables the merge step (Eq.~\ref{eq:bottleneck}) by setting $D_{\max}=0$, so density-peak labels are emitted unmerged. $p$-value is from a two-sided Wilcoxon signed-rank test on per-dataset ARI differences.}
+\label{tab:ablation_summary}
+\begin{tabular}{lc}
+\toprule
+Quantity & Value \\
+\midrule
+Mean ARI, merge ON  & 0.639 \\
+Mean ARI, merge OFF & 0.592 \\
+Median per-dataset $\Delta$ARI (ON $-$ OFF) & +0.000 \\
+Datasets where merge \emph{helps}   & 11/30 \\
+Datasets where merge \emph{hurts}   & 3/30 \\
+Datasets unchanged                    & 16/30 \\
+Wilcoxon signed-rank $p$-value        & $0.0555$ \\
+\bottomrule
+\end{tabular}
+\end{table}

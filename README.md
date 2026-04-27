@@ -1,5 +1,10 @@
 # TRCC — T-Regulated Cytokine Clustering (v1.1)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831715.svg)](https://doi.org/10.5281/zenodo.19831715)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0005--9555--1036-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0005-9555-1036)
+
 A density-anchored clustering algorithm. Each point emits a kNN-Gaussian
 "cytokine" density signal; cluster centers are discovered as **density
 peaks**; non-peak points propagate their label down the density gradient;
@@ -244,18 +249,28 @@ print(res.params, res.score)
 
 ## 8.  Citing
 
-Until the paper appears, cite this repository:
+If you use TRCC in academic work, please cite the archived release:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831715.svg)](https://doi.org/10.5281/zenodo.19831715)
 
 ```bibtex
 @software{adham_trcc_2026,
-  author = {Adham, Azar},
-  title  = {TRCC: T-Regulated Cytokine Clustering, v1.1},
-  year   = {2026},
-  url    = {https://github.com/draster2k/trcc},
-  % doi  = {TBD — pending Zenodo indexing once the GitHub repo is live},
-  note   = {Density-peak clustering with path-density mutual-reachability merging.}
+  author       = {Adham, Azar},
+  title        = {TRCC v1.1.0: T-Regulated Cytokine Clustering --
+                  source code, benchmark suite, and reproducibility scripts},
+  year         = {2026},
+  publisher    = {Zenodo},
+  version      = {1.1.0},
+  doi          = {10.5281/zenodo.19831715},
+  url          = {https://doi.org/10.5281/zenodo.19831715},
+  orcid        = {https://orcid.org/0009-0005-9555-1036},
+  note         = {Density-peak clustering with path-density mutual-reachability merging.}
 }
 ```
+
+GitHub also offers a one-click "Cite this repository" button (powered by
+the [`CITATION.cff`](CITATION.cff) at the repo root) that exports this
+record to BibTeX, RIS, EndNote, and other formats automatically.
 
 The algorithm builds on the density-peak idea of Rodriguez & Laio
 (*Science* 2014), the kNN density estimator of Loftsgaarden &

@@ -1,0 +1,46 @@
+# GitHub-recognized citation file (Citation File Format v1.2.0)
+# https://citation-file-format.github.io/
+cff-version: 1.2.0
+title: "TRCC: T-Regulated Cytokine Clustering"
+message: "If you use this software, please cite both the archived release and, when published, the accompanying paper."
+type: software
+authors:
+  - given-names: Azar
+    family-names: Adham
+    email: contact@azaradham.com
+    orcid: "https://orcid.org/0009-0005-9555-1036"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.19831715
+    description: "Zenodo archive of TRCC v1.1.0"
+repository-code: "https://github.com/draster2k/trcc"
+url: "https://github.com/draster2k/trcc"
+abstract: >-
+  TRCC is a density-peak clustering algorithm that combines a kNN-truncated
+  Gaussian density estimator with a path-density mutual-reachability merge
+  condition. The reference implementation provides a sub-quadratic kd-tree
+  C++ extension (via pybind11 and nanoflann) and a bit-identical pure-Python
+  fallback, an sklearn-compatible API, a 37-dataset benchmark harness, and
+  Optuna-based hyperparameter tuning.
+keywords:
+  - clustering
+  - density-peak
+  - unsupervised-learning
+  - kdtree
+  - pybind11
+  - scikit-learn
+  - cluster-analysis
+  - machine-learning
+license: MIT
+version: 1.1.0
+date-released: "2026-04-28"
+preferred-citation:
+  type: software
+  title: "TRCC v1.1.0: T-Regulated Cytokine Clustering --- source code, benchmark suite, and reproducibility scripts"
+  authors:
+    - given-names: Azar
+      family-names: Adham
+      orcid: "https://orcid.org/0009-0005-9555-1036"
+  year: 2026
+  doi: 10.5281/zenodo.19831715
+  url: "https://doi.org/10.5281/zenodo.19831715"

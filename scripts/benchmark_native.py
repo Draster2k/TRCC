@@ -16,18 +16,28 @@ from trcc import TRCC
 
 
 def bench(X, y=None):
+    # Save the loaded extension so we can disable it for the Python run
+    # without permanently breaking it for subsequent calls.
+    saved_flag = trcc_core._HAS_NATIVE
+    saved_native = trcc_core._native
+
     # native
-    trcc_core._HAS_NATIVE = True
+    trcc_core._HAS_NATIVE = saved_flag
+    trcc_core._native = saved_native
     t0 = time.perf_counter()
     labels_native = TRCC().fit_predict(X)
     t_native = time.perf_counter() - t0
 
     # python fallback
     trcc_core._HAS_NATIVE = False
+    trcc_core._native = None
     t0 = time.perf_counter()
     labels_python = TRCC().fit_predict(X)
     t_python = time.perf_counter() - t0
-    trcc_core._HAS_NATIVE = True
+
+    # restore
+    trcc_core._HAS_NATIVE = saved_flag
+    trcc_core._native = saved_native
 
     ari_native = adjusted_rand_score(y, labels_native) if y is not None else float("nan")
     ari_python = adjusted_rand_score(y, labels_python) if y is not None else float("nan")

@@ -63,6 +63,9 @@ paper/*.log
 paper/*.out
 paper/*.bbl
 paper/*.blg
+paper/figures/
+paper/_build_figures.py
+paper/_*.py
 
 # ─── Logs / temp ─────────────────────────────────────────────────────
 *.log
