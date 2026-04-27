@@ -1,6 +1,6 @@
 # TRCC — T-Regulated Cytokine Clustering (v1.1)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831715.svg)](https://doi.org/10.5281/zenodo.19831715)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19832226.svg)](https://doi.org/10.5281/zenodo.19832226)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0005--9555--1036-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0005-9555-1036)
@@ -251,7 +251,7 @@ print(res.params, res.score)
 
 If you use TRCC in academic work, please cite the archived release:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831715.svg)](https://doi.org/10.5281/zenodo.19831715)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19832226.svg)](https://doi.org/10.5281/zenodo.19832226)
 
 ```bibtex
 @software{adham_trcc_2026,
@@ -261,8 +261,8 @@ If you use TRCC in academic work, please cite the archived release:
   year         = {2026},
   publisher    = {Zenodo},
   version      = {1.1.0},
-  doi          = {10.5281/zenodo.19831715},
-  url          = {https://doi.org/10.5281/zenodo.19831715},
+  doi          = {10.5281/zenodo.19832226},
+  url          = {https://doi.org/10.5281/zenodo.19832226},
   orcid        = {https://orcid.org/0009-0005-9555-1036},
   note         = {Density-peak clustering with path-density mutual-reachability merging.}
 }

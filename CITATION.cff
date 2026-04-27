@@ -11,7 +11,7 @@ authors:
     orcid: "https://orcid.org/0009-0005-9555-1036"
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.19831715
+    value: 10.5281/zenodo.19832226
     description: "Zenodo archive of TRCC v1.1.0"
 repository-code: "https://github.com/draster2k/trcc"
 url: "https://github.com/draster2k/trcc"
@@ -42,5 +42,5 @@ preferred-citation:
       family-names: Adham
       orcid: "https://orcid.org/0009-0005-9555-1036"
   year: 2026
-  doi: 10.5281/zenodo.19831715
-  url: "https://doi.org/10.5281/zenodo.19831715"
+  doi: 10.5281/zenodo.19832226
+  url: "https://doi.org/10.5281/zenodo.19832226"
